@@ -1,0 +1,21 @@
+{% func responseWithError(id []byte, code errorCode, message string, data []byte) %}{% stripspace %}
+{
+    "jsonrpc":"2.0",
+    "error":{
+    "code":{%d int(code) %},
+    "message":"{%j message %}"
+    {%- if len(data) > 0 -%}
+    ,"data":{%z= data %}
+    {%- endif -%}
+    },
+    "id":{%z= id %}
+}
+{% endstripspace %}{% endfunc %}
+
+{% func responseWithResult(id, result []byte) %}{% stripspace %}
+{
+    "jsonrpc":"2.0",
+    "result":{%z= result %},
+    "id":{%z= id %}
+}
+{% endstripspace %}{% endfunc %}
