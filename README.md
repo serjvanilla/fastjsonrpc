@@ -14,7 +14,9 @@ go get -u github.com/serjvanilla/fastjsonrpc
 ```
 
 ## TODO
+- [ ] Simpler errors
 - [ ] Documentation
 - [ ] Examples
+- [ ] Parallel batch processing
 - [ ] End-to-end benchmarks
 - [ ] Migration from https://github.com/osamingo/jsonrpc examples
