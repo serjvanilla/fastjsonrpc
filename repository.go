@@ -115,6 +115,7 @@ func (r *Repository) handleBatchRequest(batchCtx *Request, requests *fastjson.Va
 
 	for _, request := range requestsArr {
 		ctx := r.contextPool.Get()
+		ctx.ctx = batchCtx.ctx
 		r.handleRequest(ctx, request)
 
 		hasResponse = ctx.response.Len() > 0
