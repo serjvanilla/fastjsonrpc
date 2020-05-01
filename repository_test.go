@@ -6,11 +6,11 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	"github.com/serjvanilla/fastjsonrpc"
+	. "github.com/serjvanilla/fastjsonrpc"
 )
 
 func TestRepositoryMethodPost(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodGet)
@@ -23,7 +23,7 @@ func TestRepositoryMethodPost(t *testing.T) {
 }
 
 func TestRepositoryBadRequest(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
@@ -41,7 +41,7 @@ func TestRepositoryBadRequest(t *testing.T) {
 }
 
 func TestRepositoryValidJSON(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
@@ -62,7 +62,7 @@ func TestRepositoryValidJSON(t *testing.T) {
 }
 
 func TestRepositoryInvalidRequest(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
@@ -83,7 +83,7 @@ func TestRepositoryInvalidRequest(t *testing.T) {
 }
 
 func TestRepositoryMethodNotFound(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
@@ -104,8 +104,8 @@ func TestRepositoryMethodNotFound(t *testing.T) {
 }
 
 func TestRepositoryRequestWithoutParams(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("ping", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *Request) {
 		ctx.Result(ctx.Arena().NewTrue())
 	})
 
@@ -128,8 +128,8 @@ func TestRepositoryRequestWithoutParams(t *testing.T) {
 }
 
 func TestRepositoryRequestNotification(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("ping", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *Request) {
 		ctx.Result(ctx.Arena().NewTrue())
 	})
 
@@ -149,8 +149,8 @@ func TestRepositoryRequestNotification(t *testing.T) {
 }
 
 func TestRepositoryRequestWithParams(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("ping", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *Request) {
 		ctx.Result(ctx.Arena().NewTrue())
 	})
 
@@ -173,7 +173,7 @@ func TestRepositoryRequestWithParams(t *testing.T) {
 }
 
 func TestRepositoryEmptyBatchRequest(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
@@ -194,8 +194,8 @@ func TestRepositoryEmptyBatchRequest(t *testing.T) {
 }
 
 func TestRepositoryBatchRequest(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("echo", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("echo", func(ctx *Request) {
 		ctx.Result(ctx.Params())
 	})
 
@@ -220,8 +220,8 @@ func TestRepositoryBatchRequest(t *testing.T) {
 }
 
 func TestRepositoryBatchRequestWithError(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("echo", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("echo", func(ctx *Request) {
 		ctx.Result(ctx.Params())
 	})
 
@@ -247,8 +247,8 @@ func TestRepositoryBatchRequestWithError(t *testing.T) {
 }
 
 func TestRepositoryBatchRequestWithNotification(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("echo", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("echo", func(ctx *Request) {
 		ctx.Result(ctx.Params())
 	})
 
@@ -277,8 +277,8 @@ func TestRepositoryBatchRequestWithNotification(t *testing.T) {
 }
 
 func TestRepositoryHandlerPanic(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("ping", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *Request) {
 		panic("ha-ha")
 	})
 

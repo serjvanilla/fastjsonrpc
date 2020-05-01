@@ -3,9 +3,10 @@ Fast JSON-RPC 2.0 implementation for [fasthttp](https://github.com/valyala/fasth
 
 ```
 $ GOMAXPROCS=1 go test -bench=. -benchmem -benchtime 10s
-BenchmarkEchoHandler            20206782               588 ns/op               0 B/op          0 allocs/op
-BenchmarkSumHandler             16310700               732 ns/op               0 B/op          0 allocs/op
-BenchmarkBatchSumHandler         7480480              1591 ns/op               0 B/op          0 allocs/op
+BenchmarkEchoHandler     	20428419	       576 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSumHandler      	16643416	       718 ns/op	       0 B/op	       0 allocs/op
+BenchmarkBatchSumHandler 	 7622062	      1566 ns/op	       0 B/op	       0 allocs/op
+BenchmarkErrorHandler    	33255259	       359 ns/op	       0 B/op	       0 allocs/op
 ```
 
 ## Install
@@ -14,7 +15,6 @@ go get -u github.com/serjvanilla/fastjsonrpc
 ```
 
 ## TODO
-- [ ] Simpler errors
 - [ ] Documentation
 - [ ] Examples
 - [ ] Parallel batch processing

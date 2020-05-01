@@ -1,4 +1,4 @@
-{% func responseWithError(id []byte, code errorCode, message string, data []byte) %}{% stripspace %}
+{% func responseWithError(id []byte, code ErrorCode, message string, data []byte) %}{% stripspace %}
 {
     "jsonrpc":"2.0",
     "error":{

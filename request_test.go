@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/serjvanilla/fastjsonrpc"
+	. "github.com/serjvanilla/fastjsonrpc"
 	"github.com/valyala/fasthttp"
 )
 
 func TestRequestID(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("ping", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *Request) {
 		if !bytes.Equal(ctx.ID(), []byte("1")) {
 			t.Fatalf("unexpected id: `%s`", ctx.ID())
 		}
@@ -24,8 +24,8 @@ func TestRequestID(t *testing.T) {
 }
 
 func TestRequestMethod(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("ping", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *Request) {
 		if !bytes.Equal(ctx.Method(), []byte("ping")) {
 			t.Fatalf("unexpected method: `%s`", ctx.Method())
 		}
@@ -39,8 +39,8 @@ func TestRequestMethod(t *testing.T) {
 }
 
 func TestRequestParams(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("echo", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("echo", func(ctx *Request) {
 		params := ctx.Params()
 		if !bytes.Equal(params.MarshalTo(nil), []byte(`"ping"`)) {
 			t.Fatalf("unexpected params: `%s`", ctx.Params())
@@ -55,8 +55,8 @@ func TestRequestParams(t *testing.T) {
 }
 
 func TestRequestParamsBytes(t *testing.T) {
-	r := fastjsonrpc.NewRepository()
-	r.Register("echo", func(ctx *fastjsonrpc.Request) {
+	r := NewRepository()
+	r.Register("echo", func(ctx *Request) {
 		params := ctx.ParamsBytes()
 		if !bytes.Equal(params, []byte(`"ping"`)) {
 			t.Fatalf("unexpected params: `%s`", ctx.ParamsBytes())

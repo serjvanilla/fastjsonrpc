@@ -9,15 +9,15 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	"github.com/serjvanilla/fastjsonrpc"
+	. "github.com/serjvanilla/fastjsonrpc"
 )
 
-func specExamplesRepository(t *testing.T) *fastjsonrpc.Repository {
+func specExamplesRepository(t *testing.T) *Repository {
 	t.Helper()
 
-	r := fastjsonrpc.NewRepository()
+	r := NewRepository()
 
-	r.Register("subtract", func(ctx *fastjsonrpc.Request) {
+	r.Register("subtract", func(ctx *Request) {
 		params := ctx.Params()
 
 		var result int64
@@ -32,7 +32,7 @@ func specExamplesRepository(t *testing.T) *fastjsonrpc.Repository {
 		ctx.Result(result)
 	})
 
-	r.Register("sum", func(ctx *fastjsonrpc.Request) {
+	r.Register("sum", func(ctx *Request) {
 		params := ctx.Params()
 
 		var result int64
@@ -44,7 +44,7 @@ func specExamplesRepository(t *testing.T) *fastjsonrpc.Repository {
 		ctx.Result(result)
 	})
 
-	r.Register("get_data", func(ctx *fastjsonrpc.Request) {
+	r.Register("get_data", func(ctx *Request) {
 		ctx.Result([]interface{}{"hello", 5})
 	})
 
