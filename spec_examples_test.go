@@ -186,12 +186,12 @@ func testSpecExample(t *testing.T, request, response string) {
 		t.Fatalf("unexpected status code: %d", ctx.Response.StatusCode())
 	}
 
-	if !assertJSON(t, response, string(ctx.Response.Body())) {
+	if !assertJSONUnordered(t, response, string(ctx.Response.Body())) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
 }
 
-func assertJSON(t *testing.T, s1, s2 string) bool {
+func assertJSONUnordered(t *testing.T, s1, s2 string) bool {
 	t.Helper()
 
 	if s1 == "" && s2 == "" {
@@ -212,6 +212,38 @@ func assertJSON(t *testing.T, s1, s2 string) bool {
 	err = json.Unmarshal([]byte(s2), &o2)
 	if err != nil {
 		return false
+	}
+
+	if v1, v2 := reflect.ValueOf(o1), reflect.ValueOf(o2); v1.Kind() == reflect.Slice && v2.Kind() == reflect.Slice {
+		len1, len2 := v1.Len(), v2.Len()
+		if len1 != len2 {
+			return false
+		}
+
+		visited := make([]bool, len1)
+
+		for i := 0; i < len1; i++ {
+			var found bool
+
+			for j := 0; j < len1; j++ {
+				if visited[j] {
+					continue
+				}
+
+				if reflect.DeepEqual(v1.Index(i).Interface(), v2.Index(j).Interface()) {
+					visited[j] = true
+					found = true
+
+					break
+				}
+			}
+
+			if !found {
+				return false
+			}
+		}
+
+		return true
 	}
 
 	return reflect.DeepEqual(o1, o2)
