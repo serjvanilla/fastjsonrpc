@@ -9,8 +9,8 @@ import (
 
 func BenchmarkEchoHandler(b *testing.B) {
 	r := NewRepository()
-	r.Register("echo", func(ctx *Request) {
-		ctx.Result(ctx.Params())
+	r.Register("echo", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Params())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -27,13 +27,13 @@ func BenchmarkEchoHandler(b *testing.B) {
 
 func BenchmarkSumHandler(b *testing.B) {
 	r := NewRepository()
-	r.Register("sum", func(req *Request) {
+	r.Register("sum", func(req *RequestCtx) {
 		params := req.Params()
 
 		a := params.GetInt("a")
 		b := params.GetInt("b")
 
-		req.Result(req.Arena().NewNumberInt(a + b))
+		req.SetResult(req.Arena().NewNumberInt(a + b))
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -52,13 +52,13 @@ func BenchmarkSumHandler(b *testing.B) {
 
 func BenchmarkBatchSumHandler(b *testing.B) {
 	r := NewRepository()
-	r.Register("sum", func(ctx *Request) {
+	r.Register("sum", func(ctx *RequestCtx) {
 		params := ctx.Params()
 
 		a := params.GetInt("a")
 		b := params.GetInt("b")
 
-		ctx.Result(ctx.Arena().NewNumberInt(a + b))
+		ctx.SetResult(ctx.Arena().NewNumberInt(a + b))
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -79,8 +79,8 @@ func BenchmarkBatchSumHandler(b *testing.B) {
 
 func BenchmarkErrorHandler(b *testing.B) {
 	r := NewRepository()
-	r.Register("error", func(req *Request) {
-		req.Error(ErrServerError(ErrorCode(-32000)).WithMessage("Server defined error"))
+	r.Register("error", func(req *RequestCtx) {
+		req.SetError(ErrServerError(ErrorCode(-32000)).WithMessage("Server defined error"))
 	})
 
 	ctx := new(fasthttp.RequestCtx)
