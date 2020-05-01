@@ -2,10 +2,13 @@ package fastjsonrpc
 
 import (
 	"sync"
+
+	"github.com/valyala/bytebufferpool"
 )
 
 type requestPool struct {
-	pool sync.Pool
+	pool           sync.Pool
+	bytebufferpool bytebufferpool.Pool
 }
 
 func (r *Request) reset() {
@@ -17,24 +20,26 @@ func (r *Request) reset() {
 
 	r.params = nil
 
-	bufferpool.Put(r.paramsBytes)
-	bufferpool.Put(r.response)
+	r.bytebufferpool.Put(r.paramsBytes)
+	r.bytebufferpool.Put(r.response)
 }
 
 func (cp *requestPool) Get() *Request {
 	v := cp.pool.Get()
 	if v == nil {
 		return &Request{
-			paramsBytes: bufferpool.Get(),
-			response:    bufferpool.Get(),
+			paramsBytes: cp.bytebufferpool.Get(),
+			response:    cp.bytebufferpool.Get(),
+
+			bytebufferpool: &cp.bytebufferpool,
 		}
 	}
 
-	ctx := v.(*Request)
-	ctx.paramsBytes = bufferpool.Get()
-	ctx.response = bufferpool.Get()
+	r := v.(*Request)
+	r.paramsBytes = r.bytebufferpool.Get()
+	r.response = r.bytebufferpool.Get()
 
-	return ctx
+	return r
 }
 
 func (cp *requestPool) Put(ctx *Request) {
