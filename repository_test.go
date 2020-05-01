@@ -1,7 +1,6 @@
 package fastjsonrpc_test
 
 import (
-	"bytes"
 	"testing"
 
 	"github.com/valyala/fasthttp"
@@ -34,7 +33,7 @@ func TestRepositoryBadRequest(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !assertJSON(t, string(ctx.Response.Body()),
+	if !assertJSONUnordered(t, string(ctx.Response.Body()),
 		`{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error"},"id":null}`) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -53,9 +52,9 @@ func TestRepositoryValidJSON(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -74,9 +73,9 @@ func TestRepositoryInvalidRequest(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -95,9 +94,9 @@ func TestRepositoryMethodNotFound(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":1}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":1}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -119,9 +118,9 @@ func TestRepositoryRequestWithoutParams(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","result":true,"id":1}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","result":true,"id":1}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -164,9 +163,9 @@ func TestRepositoryRequestWithParams(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","result":true,"id":1}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","result":true,"id":1}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -185,9 +184,9 @@ func TestRepositoryEmptyBatchRequest(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -211,9 +210,9 @@ func TestRepositoryBatchRequest(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`[{"jsonrpc":"2.0","result":"foo","id":1},{"jsonrpc":"2.0","result":"bar","id":2}]`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`[{"jsonrpc":"2.0","result":"foo","id":1},{"jsonrpc":"2.0","result":"bar","id":2}]`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -237,10 +236,10 @@ func TestRepositoryBatchRequestWithError(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`[{"jsonrpc":"2.0","result":"foo","id":1},{"jsonrpc":"2.0",`+
-			`"error":{"code":-32601,"message":"Method not found"},"id":2}]`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`[{"jsonrpc":"2.0","result":"foo","id":1},{"jsonrpc":"2.0",
+		"error":{"code":-32601,"message":"Method not found"},"id":2}]`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -255,11 +254,12 @@ func TestRepositoryBatchRequestWithNotification(t *testing.T) {
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
 	ctx.Request.SetBodyString(
-		`[
-  {"jsonrpc":"2.0","method":"echo","params":"foo","id":1},
-  {"jsonrpc":"2.0","method":"echo","params":"bar"},
-  {"jsonrpc":"2.0","method":"echo","params":"baz","id":3}
-]`,
+		`
+        [
+          {"jsonrpc":"2.0","method":"echo","params":"foo","id":1},
+          {"jsonrpc":"2.0","method":"echo","params":"bar"},
+          {"jsonrpc":"2.0","method":"echo","params":"baz","id":3}
+        ]`,
 	)
 
 	r.RequestHandler()(ctx)
@@ -268,9 +268,9 @@ func TestRepositoryBatchRequestWithNotification(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`[{"jsonrpc":"2.0","result":"foo","id":1},{"jsonrpc":"2.0","result":"baz","id":3}]`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`[{"jsonrpc":"2.0","result":"foo","id":1},{"jsonrpc":"2.0","result":"baz","id":3}]`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
@@ -292,9 +292,9 @@ func TestRepositoryHandlerPanic(t *testing.T) {
 		t.Fatal("unexpected status code")
 	}
 
-	if !bytes.Equal(
-		ctx.Response.Body(),
-		[]byte(`{"jsonrpc":"2.0","error":{"code":-32603,"message":"Internal error"},"id":1}`),
+	if !assertJSONUnordered(
+		t, string(ctx.Response.Body()),
+		`{"jsonrpc":"2.0","error":{"code":-32603,"message":"Internal error"},"id":1}`,
 	) {
 		t.Fatalf("unexpected response body: `%s`", ctx.Response.Body())
 	}
