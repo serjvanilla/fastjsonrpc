@@ -1,5 +1,9 @@
 package fastjsonrpc
 
+import (
+	"fmt"
+)
+
 const (
 	renderedParseError     = `{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error"},"id":null}`
 	renderedInvalidRequest = `{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}`
@@ -8,12 +12,6 @@ const (
 type ErrorCode int
 
 const (
-	errorCodeParseError    ErrorCode = -32700
-	errorMessageParseError string    = `Parse error`
-
-	errorCodeInvalidRequest    ErrorCode = -32600
-	errorMessageInvalidRequest string    = `Invalid Request`
-
 	errorCodeMethodNotFound    ErrorCode = -32601
 	errorMessageMethodNotFound string    = `Method not found`
 
@@ -23,8 +21,11 @@ const (
 	errorCodeInternalError    ErrorCode = -32603
 	errorMessageInternalError string    = `Internal error`
 
-	errorMessageServerError string = `Server error`
+	errorCodeServerError    ErrorCode = -32000
+	errorMessageServerError string    = `Server error`
 )
+
+var _ error = &Error{}
 
 type Error struct {
 	Code    ErrorCode
@@ -32,10 +33,12 @@ type Error struct {
 	Data    interface{}
 }
 
-func (e *Error) WithMessage(message string) *Error {
-	e.Message = message
+func (e *Error) Error() string {
+	if e.Data == nil {
+		return fmt.Sprintf("json-rpc error: [%d] %s", e.Code, e.Message)
+	}
 
-	return e
+	return fmt.Sprintf("json-rpc error: [%d] %s (%+v)", e.Code, e.Message, e.Data)
 }
 
 func (e *Error) WithData(data interface{}) *Error {
@@ -44,21 +47,7 @@ func (e *Error) WithData(data interface{}) *Error {
 	return e
 }
 
-func ErrParseError() *Error {
-	return &Error{
-		Code:    errorCodeParseError,
-		Message: errorMessageParseError,
-	}
-}
-
-func ErrInvalidRequest() *Error {
-	return &Error{
-		Code:    errorCodeInvalidRequest,
-		Message: errorMessageInvalidRequest,
-	}
-}
-
-func ErrMethodNotFound() *Error {
+func errMethodNotFound() *Error {
 	return &Error{
 		Code:    errorCodeMethodNotFound,
 		Message: errorMessageMethodNotFound,

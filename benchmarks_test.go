@@ -80,7 +80,7 @@ func BenchmarkBatchSumHandler(b *testing.B) {
 func BenchmarkErrorHandler(b *testing.B) {
 	r := NewRepository()
 	r.Register("error", func(req *RequestCtx) {
-		req.SetError(ErrServerError(ErrorCode(-32000)).WithMessage("Server defined error"))
+		req.SetError(ErrServerError(ErrorCode(-32001)))
 	})
 
 	ctx := new(fasthttp.RequestCtx)
