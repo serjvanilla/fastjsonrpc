@@ -14,34 +14,29 @@ func (ctx *RequestCtx) writeString(s string) {
 }
 
 // SetError writes JSON-RPC response with error.
-func (ctx *RequestCtx) SetError(err error) {
+func (ctx *RequestCtx) SetError(err *Error) {
 	if len(ctx.id) == 0 {
 		return
 	}
 
 	ctx.response.Reset()
 
-	e, ok := err.(*Error)
-	if !ok {
-		e = ErrServerError(errorCodeServerError).WithData(ctx.arena.NewString(err.Error()))
-	}
-
-	if e.Data == nil {
-		writeresponseWithError(ctx.response, ctx.id, e.Code, e.Message, nil)
+	if err.Data == nil {
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, nil)
 		return
 	}
 
-	switch v := e.Data.(type) {
+	switch v := err.Data.(type) {
 	case *fastjson.Value:
 		buf := ctx.bytebufferpool.Get()
-		writeresponseWithError(ctx.response, ctx.id, e.Code, e.Message, v.MarshalTo(buf.B))
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, v.MarshalTo(buf.B))
 		ctx.bytebufferpool.Put(buf)
 	case []byte:
-		writeresponseWithError(ctx.response, ctx.id, e.Code, e.Message, v)
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, v)
 	default:
 		buf := ctx.bytebufferpool.Get()
-		_ = json.NewEncoder(buf).Encode(e.Data)
-		writeresponseWithError(ctx.response, ctx.id, e.Code, e.Message, buf.B)
+		_ = json.NewEncoder(buf).Encode(err.Data)
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, buf.B)
 		ctx.bytebufferpool.Put(buf)
 	}
 }
