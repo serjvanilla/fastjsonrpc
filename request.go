@@ -2,6 +2,7 @@ package fastjsonrpc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/valyala/fasthttp"
@@ -53,6 +54,14 @@ func (ctx *RequestCtx) Params() *fastjson.Value {
 // ParamsBytes returns raw bytes of request's "params" field.
 func (ctx *RequestCtx) ParamsBytes() []byte {
 	return ctx.paramsBytes.B
+}
+
+func (ctx *RequestCtx) ParamsUnmarshal(v interface{}) error {
+	if json.Unmarshal(ctx.ParamsBytes(), v) != nil {
+		return ErrInvalidParams()
+	}
+
+	return nil
 }
 
 func (ctx *RequestCtx) Deadline() (deadline time.Time, ok bool) {

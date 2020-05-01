@@ -2,6 +2,7 @@ package fastjsonrpc_test
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 
 	. "github.com/serjvanilla/fastjsonrpc"
@@ -66,6 +67,46 @@ func TestRequestParamsBytes(t *testing.T) {
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
 	ctx.Request.SetBodyString(`{"jsonrpc":"2.0","method":"echo","params":"ping","id":1}`)
+
+	r.RequestHandler()(ctx)
+}
+
+func TestRequestParamsUnmarshal(t *testing.T) {
+	r := NewRepository()
+	r.Register("echo", func(ctx *RequestCtx) {
+		var param string
+
+		err := ctx.ParamsUnmarshal(&param)
+		if err != nil {
+			t.Fatalf("unexpected error: %s", err)
+		}
+
+		if param != "ping" {
+			t.Fatalf("unexpected param: `%s`", param)
+		}
+	})
+
+	ctx := new(fasthttp.RequestCtx)
+	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
+	ctx.Request.SetBodyString(`{"jsonrpc":"2.0","method":"echo","params":"ping","id":1}`)
+
+	r.RequestHandler()(ctx)
+}
+
+func TestRequestParamsUnmarshalEmpty(t *testing.T) {
+	r := NewRepository()
+	r.Register("ping", func(ctx *RequestCtx) {
+		var param string
+
+		err := ctx.ParamsUnmarshal(&param)
+		if !reflect.DeepEqual(err, ErrInvalidParams()) {
+			t.Fatalf("unexpected error: %s", err)
+		}
+	})
+
+	ctx := new(fasthttp.RequestCtx)
+	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
+	ctx.Request.SetBodyString(`{"jsonrpc":"2.0","method":"ping","id":1}`)
 
 	r.RequestHandler()(ctx)
 }
