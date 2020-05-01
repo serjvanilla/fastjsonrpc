@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestResponseWithError(t *testing.T) {
+func TestTemplateResponseWithError(t *testing.T) {
 	result := responseWithError(
 		[]byte(`"null"`),
 		errorCodeInternalError,
@@ -16,7 +16,7 @@ func TestResponseWithError(t *testing.T) {
 	}
 }
 
-func TestResponseWithResult(t *testing.T) {
+func TestTemplateResponseWithResult(t *testing.T) {
 	result := responseWithResult(
 		[]byte(`"null"`),
 		[]byte(`true`),

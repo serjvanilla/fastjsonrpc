@@ -78,7 +78,7 @@ func (r *Repository) handleRequest(rCtx *RequestCtx, request *fastjson.Value) {
 
 	handler, ok := r.handlers[string(method)]
 	if !ok {
-		rCtx.SetError(ErrMethodNotFound())
+		rCtx.SetError(errMethodNotFound())
 		return
 	}
 
