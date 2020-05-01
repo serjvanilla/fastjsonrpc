@@ -18,7 +18,7 @@ var (
 )
 
 //line template.qtpl:1
-func streamresponseWithError(qw422016 *qt422016.Writer, id []byte, code errorCode, message string, data []byte) {
+func streamresponseWithError(qw422016 *qt422016.Writer, id []byte, code ErrorCode, message string, data []byte) {
 //line template.qtpl:1
 	qw422016.N().S(`{"jsonrpc":"2.0","error":{"code":`)
 //line template.qtpl:5
@@ -47,7 +47,7 @@ func streamresponseWithError(qw422016 *qt422016.Writer, id []byte, code errorCod
 }
 
 //line template.qtpl:13
-func writeresponseWithError(qq422016 qtio422016.Writer, id []byte, code errorCode, message string, data []byte) {
+func writeresponseWithError(qq422016 qtio422016.Writer, id []byte, code ErrorCode, message string, data []byte) {
 //line template.qtpl:13
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line template.qtpl:13
@@ -58,7 +58,7 @@ func writeresponseWithError(qq422016 qtio422016.Writer, id []byte, code errorCod
 }
 
 //line template.qtpl:13
-func responseWithError(id []byte, code errorCode, message string, data []byte) string {
+func responseWithError(id []byte, code ErrorCode, message string, data []byte) string {
 //line template.qtpl:13
 	qb422016 := qt422016.AcquireByteBuffer()
 //line template.qtpl:13

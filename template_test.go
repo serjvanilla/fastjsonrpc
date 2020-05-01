@@ -7,8 +7,8 @@ import (
 func TestResponseWithError(t *testing.T) {
 	result := responseWithError(
 		[]byte(`"null"`),
-		ErrorCodeInternalError,
-		"Internal error",
+		errorCodeInternalError,
+		errorMessageInternalError,
 		[]byte(`{"context":42}`),
 	)
 	if result != `{"jsonrpc":"2.0","error":{"code":-32603,"message":"Internal error","data":{"context":42}},"id":"null"}` {

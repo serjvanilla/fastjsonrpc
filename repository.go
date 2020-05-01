@@ -33,7 +33,7 @@ func (r *Repository) RequestHandler() fasthttp.RequestHandler {
 
 		request, err := parser.ParseBytes(ctx.PostBody())
 		if err != nil {
-			_, _ = ctx.Write(renderedParseError)
+			_, _ = ctx.WriteString(renderedParseError)
 			return
 		}
 
@@ -48,7 +48,7 @@ func (r *Repository) RequestHandler() fasthttp.RequestHandler {
 		case fastjson.TypeArray:
 			r.handleBatchRequest(rCtx, request)
 		default:
-			_, _ = rCtx.response.Write(renderedInvalidRequest)
+			_, _ = rCtx.response.WriteString(renderedInvalidRequest)
 		}
 
 		_, _ = rCtx.response.WriteTo(ctx)
@@ -68,7 +68,7 @@ func (r *Repository) handleRequest(ctx *Request, request *fastjson.Value) {
 	method := request.GetStringBytes("method")
 
 	if !bytes.Equal(jsonrpc, []byte(`2.0`)) || len(method) == 0 {
-		ctx.writeByte(renderedInvalidRequest)
+		ctx.writeString(renderedInvalidRequest)
 		return
 	}
 
@@ -78,7 +78,7 @@ func (r *Repository) handleRequest(ctx *Request, request *fastjson.Value) {
 
 	handler, ok := r.handlers[string(method)]
 	if !ok {
-		ctx.Error(errorCodeMethodNotFound, "Method not found", nil)
+		ctx.Error(ErrMethodNotFound())
 		return
 	}
 
@@ -91,8 +91,7 @@ func (r *Repository) handleRequest(ctx *Request, request *fastjson.Value) {
 
 	defer func() {
 		if recover() != nil {
-			ctx.response.Reset()
-			ctx.Error(ErrorCodeInternalError, "Internal error", nil)
+			ctx.Error(ErrInternalError())
 		}
 	}()
 
@@ -102,7 +101,7 @@ func (r *Repository) handleRequest(ctx *Request, request *fastjson.Value) {
 func (r *Repository) handleBatchRequest(batchCtx *Request, requests *fastjson.Value) {
 	requestsArr := requests.GetArray()
 	if len(requestsArr) == 0 {
-		batchCtx.writeByte(renderedInvalidRequest)
+		batchCtx.writeString(renderedInvalidRequest)
 		return
 	}
 

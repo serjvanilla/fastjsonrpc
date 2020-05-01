@@ -9,31 +9,33 @@ import (
 //go:generate go get -u github.com/valyala/quicktemplate/qtc
 //go:generate qtc -dir=.
 
-func (r *Request) writeByte(buf []byte) {
-	_, _ = r.response.Write(buf)
+func (r *Request) writeString(s string) {
+	_, _ = r.response.WriteString(s)
 }
 
-// Errors writes JSON-RPC response with error.
-func (r *Request) Error(code errorCode, message string, data interface{}) {
+// Error writes JSON-RPC response with error.
+func (r *Request) Error(err *Error) {
 	if len(r.id) == 0 {
 		return
 	}
 
-	if data == nil {
-		writeresponseWithError(r.response, r.id, code, message, nil)
+	r.response.Reset()
+
+	if err.Data == nil {
+		writeresponseWithError(r.response, r.id, err.Code, err.Message, nil)
 		return
 	}
 
-	switch v := data.(type) {
+	switch v := err.Data.(type) {
 	case *fastjson.Value:
 		buf := bufferpool.Get()
-		writeresponseWithError(r.response, r.id, code, message, v.MarshalTo(buf.B))
+		writeresponseWithError(r.response, r.id, err.Code, err.Message, v.MarshalTo(buf.B))
 		bufferpool.Put(buf)
 	case []byte:
-		writeresponseWithError(r.response, r.id, code, message, v)
+		writeresponseWithError(r.response, r.id, err.Code, err.Message, v)
 	default:
-		out, _ := json.Marshal(data)
-		writeresponseWithError(r.response, r.id, code, message, out)
+		out, _ := json.Marshal(err.Data)
+		writeresponseWithError(r.response, r.id, err.Code, err.Message, out)
 	}
 }
 
@@ -44,6 +46,8 @@ func (r *Request) Result(result interface{}) {
 	if len(r.id) == 0 {
 		return
 	}
+
+	r.response.Reset()
 
 	switch v := result.(type) {
 	case *fastjson.Value:
