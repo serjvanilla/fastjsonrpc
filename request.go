@@ -22,6 +22,8 @@ type Request struct {
 
 	paramsBytes *bytebufferpool.ByteBuffer
 	response    *bytebufferpool.ByteBuffer
+
+	bytebufferpool *bytebufferpool.Pool
 }
 
 // Context returns request's underlying context.

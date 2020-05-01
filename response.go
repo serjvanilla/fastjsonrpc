@@ -28,14 +28,16 @@ func (r *Request) Error(err *Error) {
 
 	switch v := err.Data.(type) {
 	case *fastjson.Value:
-		buf := bufferpool.Get()
+		buf := r.bytebufferpool.Get()
 		writeresponseWithError(r.response, r.id, err.Code, err.Message, v.MarshalTo(buf.B))
-		bufferpool.Put(buf)
+		r.bytebufferpool.Put(buf)
 	case []byte:
 		writeresponseWithError(r.response, r.id, err.Code, err.Message, v)
 	default:
-		out, _ := json.Marshal(err.Data)
-		writeresponseWithError(r.response, r.id, err.Code, err.Message, out)
+		buf := r.bytebufferpool.Get()
+		_ = json.NewEncoder(buf).Encode(err.Data)
+		writeresponseWithError(r.response, r.id, err.Code, err.Message, buf.B)
+		r.bytebufferpool.Put(buf)
 	}
 }
 
@@ -51,13 +53,15 @@ func (r *Request) Result(result interface{}) {
 
 	switch v := result.(type) {
 	case *fastjson.Value:
-		buf := bufferpool.Get()
+		buf := r.bytebufferpool.Get()
 		writeresponseWithResult(r.response, r.id, v.MarshalTo(buf.B))
-		bufferpool.Put(buf)
+		r.bytebufferpool.Put(buf)
 	case []byte:
 		writeresponseWithResult(r.response, r.id, v)
 	default:
-		out, _ := json.Marshal(result)
-		writeresponseWithResult(r.response, r.id, out)
+		buf := r.bytebufferpool.Get()
+		_ = json.NewEncoder(buf).Encode(result)
+		writeresponseWithResult(r.response, r.id, buf.B)
+		r.bytebufferpool.Put(buf)
 	}
 }
