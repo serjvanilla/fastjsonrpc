@@ -27,13 +27,13 @@ func BenchmarkEchoHandler(b *testing.B) {
 
 func BenchmarkSumHandler(b *testing.B) {
 	r := NewRepository()
-	r.Register("sum", func(req *RequestCtx) {
-		params := req.Params()
+	r.Register("sum", func(ctx *RequestCtx) {
+		params := ctx.Params()
 
 		a := params.GetInt("a")
 		b := params.GetInt("b")
 
-		req.SetResult(req.Arena().NewNumberInt(a + b))
+		ctx.SetResult(ctx.Arena().NewNumberInt(a + b))
 	})
 
 	ctx := new(fasthttp.RequestCtx)
