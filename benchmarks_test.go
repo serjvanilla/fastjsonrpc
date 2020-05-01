@@ -85,7 +85,7 @@ func BenchmarkErrorHandler(b *testing.B) {
 
 	ctx := new(fasthttp.RequestCtx)
 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
-	ctx.Request.SetBodyString(`{"jsonrpc":"2.0","method":"error"}`)
+	ctx.Request.SetBodyString(`{"jsonrpc":"2.0","method":"error","id":"err"}`)
 
 	handler := r.RequestHandler()
 
