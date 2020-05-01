@@ -10,7 +10,7 @@ import (
 
 func TestRequestID(t *testing.T) {
 	r := NewRepository()
-	r.Register("ping", func(ctx *Request) {
+	r.Register("ping", func(ctx *RequestCtx) {
 		if !bytes.Equal(ctx.ID(), []byte("1")) {
 			t.Fatalf("unexpected id: `%s`", ctx.ID())
 		}
@@ -25,7 +25,7 @@ func TestRequestID(t *testing.T) {
 
 func TestRequestMethod(t *testing.T) {
 	r := NewRepository()
-	r.Register("ping", func(ctx *Request) {
+	r.Register("ping", func(ctx *RequestCtx) {
 		if !bytes.Equal(ctx.Method(), []byte("ping")) {
 			t.Fatalf("unexpected method: `%s`", ctx.Method())
 		}
@@ -40,7 +40,7 @@ func TestRequestMethod(t *testing.T) {
 
 func TestRequestParams(t *testing.T) {
 	r := NewRepository()
-	r.Register("echo", func(ctx *Request) {
+	r.Register("echo", func(ctx *RequestCtx) {
 		params := ctx.Params()
 		if !bytes.Equal(params.MarshalTo(nil), []byte(`"ping"`)) {
 			t.Fatalf("unexpected params: `%s`", ctx.Params())
@@ -56,7 +56,7 @@ func TestRequestParams(t *testing.T) {
 
 func TestRequestParamsBytes(t *testing.T) {
 	r := NewRepository()
-	r.Register("echo", func(ctx *Request) {
+	r.Register("echo", func(ctx *RequestCtx) {
 		params := ctx.ParamsBytes()
 		if !bytes.Equal(params, []byte(`"ping"`)) {
 			t.Fatalf("unexpected params: `%s`", ctx.ParamsBytes())

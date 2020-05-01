@@ -6,28 +6,28 @@ import (
 	"github.com/valyala/bytebufferpool"
 )
 
-type requestPool struct {
+type contextPool struct {
 	pool           sync.Pool
 	bytebufferpool bytebufferpool.Pool
 }
 
-func (r *Request) reset() {
-	r.ctx = nil
-	r.arena.Reset()
+func (ctx *RequestCtx) reset() {
+	ctx.fasthttpCtx = nil
+	ctx.arena.Reset()
 
-	r.id = r.id[:0]
-	r.method = r.method[:0]
+	ctx.id = ctx.id[:0]
+	ctx.method = ctx.method[:0]
 
-	r.params = nil
+	ctx.params = nil
 
-	r.bytebufferpool.Put(r.paramsBytes)
-	r.bytebufferpool.Put(r.response)
+	ctx.bytebufferpool.Put(ctx.paramsBytes)
+	ctx.bytebufferpool.Put(ctx.response)
 }
 
-func (cp *requestPool) Get() *Request {
+func (cp *contextPool) Get() *RequestCtx {
 	v := cp.pool.Get()
 	if v == nil {
-		return &Request{
+		return &RequestCtx{
 			paramsBytes: cp.bytebufferpool.Get(),
 			response:    cp.bytebufferpool.Get(),
 
@@ -35,14 +35,14 @@ func (cp *requestPool) Get() *Request {
 		}
 	}
 
-	r := v.(*Request)
+	r := v.(*RequestCtx)
 	r.paramsBytes = r.bytebufferpool.Get()
 	r.response = r.bytebufferpool.Get()
 
 	return r
 }
 
-func (cp *requestPool) Put(ctx *Request) {
+func (cp *contextPool) Put(ctx *RequestCtx) {
 	ctx.reset()
 	cp.pool.Put(ctx)
 }

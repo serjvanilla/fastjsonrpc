@@ -17,7 +17,7 @@ func specExamplesRepository(t *testing.T) *Repository {
 
 	r := NewRepository()
 
-	r.Register("subtract", func(ctx *Request) {
+	r.Register("subtract", func(ctx *RequestCtx) {
 		params := ctx.Params()
 
 		var result int64
@@ -29,10 +29,10 @@ func specExamplesRepository(t *testing.T) *Repository {
 			result = params.GetInt64("minuend") - params.GetInt64("subtrahend")
 		}
 
-		ctx.Result(result)
+		ctx.SetResult(result)
 	})
 
-	r.Register("sum", func(ctx *Request) {
+	r.Register("sum", func(ctx *RequestCtx) {
 		params := ctx.Params()
 
 		var result int64
@@ -41,11 +41,11 @@ func specExamplesRepository(t *testing.T) *Repository {
 			result += param.GetInt64()
 		}
 
-		ctx.Result(result)
+		ctx.SetResult(result)
 	})
 
-	r.Register("get_data", func(ctx *Request) {
-		ctx.Result([]interface{}{"hello", 5})
+	r.Register("get_data", func(ctx *RequestCtx) {
+		ctx.SetResult([]interface{}{"hello", 5})
 	})
 
 	return r

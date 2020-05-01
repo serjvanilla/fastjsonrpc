@@ -2,16 +2,21 @@ package fastjsonrpc
 
 import (
 	"context"
+	"time"
+
+	"github.com/valyala/fasthttp"
 
 	"github.com/valyala/bytebufferpool"
 
 	"github.com/valyala/fastjson"
 )
 
-type RequestHandler func(ctx *Request)
+type RequestHandler func(ctx *RequestCtx)
 
-type Request struct {
-	ctx context.Context
+var _ context.Context = &RequestCtx{}
+
+type RequestCtx struct {
+	fasthttpCtx *fasthttp.RequestCtx
 
 	arena fastjson.Arena
 
@@ -26,31 +31,42 @@ type Request struct {
 	bytebufferpool *bytebufferpool.Pool
 }
 
-// Context returns request's underlying context.
-func (r *Request) Context() context.Context {
-	return r.ctx
-}
-
-func (r *Request) Arena() *fastjson.Arena {
-	return &r.arena
+func (ctx *RequestCtx) Arena() *fastjson.Arena {
+	return &ctx.arena
 }
 
 // ID returns "id" field of JSON-RPC 2.0 request.
-func (r *Request) ID() []byte {
-	return r.id
+func (ctx *RequestCtx) ID() []byte {
+	return ctx.id
 }
 
 // Method returns matched method.
-func (r *Request) Method() []byte {
-	return r.method
+func (ctx *RequestCtx) Method() []byte {
+	return ctx.method
 }
 
 // Params returns request parameters already unmarshalled with valyala/fastjson.
-func (r *Request) Params() *fastjson.Value {
-	return r.params
+func (ctx *RequestCtx) Params() *fastjson.Value {
+	return ctx.params
 }
 
 // ParamsBytes returns raw bytes of request's "params" field.
-func (r *Request) ParamsBytes() []byte {
-	return r.paramsBytes.B
+func (ctx *RequestCtx) ParamsBytes() []byte {
+	return ctx.paramsBytes.B
+}
+
+func (ctx *RequestCtx) Deadline() (deadline time.Time, ok bool) {
+	return ctx.fasthttpCtx.Deadline()
+}
+
+func (ctx *RequestCtx) Done() <-chan struct{} {
+	return ctx.fasthttpCtx.Done()
+}
+
+func (ctx *RequestCtx) Err() error {
+	return ctx.fasthttpCtx.Err()
+}
+
+func (ctx *RequestCtx) Value(key interface{}) interface{} {
+	return ctx.fasthttpCtx.Value(key)
 }

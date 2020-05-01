@@ -104,8 +104,8 @@ func TestRepositoryMethodNotFound(t *testing.T) {
 
 func TestRepositoryRequestWithoutParams(t *testing.T) {
 	r := NewRepository()
-	r.Register("ping", func(ctx *Request) {
-		ctx.Result(ctx.Arena().NewTrue())
+	r.Register("ping", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Arena().NewTrue())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -128,8 +128,8 @@ func TestRepositoryRequestWithoutParams(t *testing.T) {
 
 func TestRepositoryRequestNotification(t *testing.T) {
 	r := NewRepository()
-	r.Register("ping", func(ctx *Request) {
-		ctx.Result(ctx.Arena().NewTrue())
+	r.Register("ping", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Arena().NewTrue())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -149,8 +149,8 @@ func TestRepositoryRequestNotification(t *testing.T) {
 
 func TestRepositoryRequestWithParams(t *testing.T) {
 	r := NewRepository()
-	r.Register("ping", func(ctx *Request) {
-		ctx.Result(ctx.Arena().NewTrue())
+	r.Register("ping", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Arena().NewTrue())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -194,8 +194,8 @@ func TestRepositoryEmptyBatchRequest(t *testing.T) {
 
 func TestRepositoryBatchRequest(t *testing.T) {
 	r := NewRepository()
-	r.Register("echo", func(ctx *Request) {
-		ctx.Result(ctx.Params())
+	r.Register("echo", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Params())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -220,8 +220,8 @@ func TestRepositoryBatchRequest(t *testing.T) {
 
 func TestRepositoryBatchRequestWithError(t *testing.T) {
 	r := NewRepository()
-	r.Register("echo", func(ctx *Request) {
-		ctx.Result(ctx.Params())
+	r.Register("echo", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Params())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -247,8 +247,8 @@ func TestRepositoryBatchRequestWithError(t *testing.T) {
 
 func TestRepositoryBatchRequestWithNotification(t *testing.T) {
 	r := NewRepository()
-	r.Register("echo", func(ctx *Request) {
-		ctx.Result(ctx.Params())
+	r.Register("echo", func(ctx *RequestCtx) {
+		ctx.SetResult(ctx.Params())
 	})
 
 	ctx := new(fasthttp.RequestCtx)
@@ -278,7 +278,7 @@ func TestRepositoryBatchRequestWithNotification(t *testing.T) {
 
 func TestRepositoryHandlerPanic(t *testing.T) {
 	r := NewRepository()
-	r.Register("ping", func(ctx *Request) {
+	r.Register("ping", func(ctx *RequestCtx) {
 		panic("ha-ha")
 	})
 

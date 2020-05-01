@@ -15,7 +15,7 @@ func NewRepository() *Repository {
 
 // Repository is a JSON-RPC 2.0 methods repository.
 type Repository struct {
-	contextPool requestPool
+	contextPool contextPool
 	parserPool  fastjson.ParserPool
 
 	handlers map[string]RequestHandler
@@ -38,7 +38,7 @@ func (r *Repository) RequestHandler() fasthttp.RequestHandler {
 		}
 
 		rCtx := r.contextPool.Get()
-		rCtx.ctx = ctx
+		rCtx.fasthttpCtx = ctx
 
 		ctx.SetContentType("application/json")
 
@@ -63,42 +63,42 @@ func (r *Repository) Register(method string, handler RequestHandler) {
 	r.handlers[method] = handler
 }
 
-func (r *Repository) handleRequest(ctx *Request, request *fastjson.Value) {
+func (r *Repository) handleRequest(rCtx *RequestCtx, request *fastjson.Value) {
 	jsonrpc := request.GetStringBytes("jsonrpc")
 	method := request.GetStringBytes("method")
 
 	if !bytes.Equal(jsonrpc, []byte(`2.0`)) || len(method) == 0 {
-		ctx.writeString(renderedInvalidRequest)
+		rCtx.writeString(renderedInvalidRequest)
 		return
 	}
 
 	if id := request.Get("id"); id != nil {
-		ctx.id = id.MarshalTo(ctx.id)
+		rCtx.id = id.MarshalTo(rCtx.id)
 	}
 
 	handler, ok := r.handlers[string(method)]
 	if !ok {
-		ctx.Error(ErrMethodNotFound())
+		rCtx.SetError(ErrMethodNotFound())
 		return
 	}
 
-	ctx.method = method
-	ctx.params = request.Get("params")
+	rCtx.method = method
+	rCtx.params = request.Get("params")
 
-	if ctx.params != nil {
-		ctx.paramsBytes.B = ctx.params.MarshalTo(ctx.paramsBytes.B)
+	if rCtx.params != nil {
+		rCtx.paramsBytes.B = rCtx.params.MarshalTo(rCtx.paramsBytes.B)
 	}
 
 	defer func() {
 		if recover() != nil {
-			ctx.Error(ErrInternalError())
+			rCtx.SetError(ErrInternalError())
 		}
 	}()
 
-	handler(ctx)
+	handler(rCtx)
 }
 
-func (r *Repository) handleBatchRequest(batchCtx *Request, requests *fastjson.Value) {
+func (r *Repository) handleBatchRequest(batchCtx *RequestCtx, requests *fastjson.Value) {
 	requestsArr := requests.GetArray()
 	if len(requestsArr) == 0 {
 		batchCtx.writeString(renderedInvalidRequest)
@@ -110,22 +110,22 @@ func (r *Repository) handleBatchRequest(batchCtx *Request, requests *fastjson.Va
 	var needComma bool
 
 	for _, request := range requestsArr {
-		ctx := r.contextPool.Get()
-		ctx.ctx = batchCtx.ctx
-		r.handleRequest(ctx, request)
+		rCtx := r.contextPool.Get()
+		rCtx.fasthttpCtx = batchCtx.fasthttpCtx
+		r.handleRequest(rCtx, request)
 
-		if ctx.response.Len() > 0 {
+		if rCtx.response.Len() > 0 {
 			if needComma {
 				_ = batchCtx.response.WriteByte(',')
 				needComma = false
 			}
 
-			if n, _ := batchCtx.response.Write(ctx.response.B); n != 0 {
+			if n, _ := batchCtx.response.Write(rCtx.response.B); n != 0 {
 				needComma = true
 			}
 		}
 
-		r.contextPool.Put(ctx)
+		r.contextPool.Put(rCtx)
 	}
 
 	if batchCtx.response.Len() > 1 {

@@ -9,59 +9,59 @@ import (
 //go:generate go get -u github.com/valyala/quicktemplate/qtc
 //go:generate qtc -dir=.
 
-func (r *Request) writeString(s string) {
-	_, _ = r.response.WriteString(s)
+func (ctx *RequestCtx) writeString(s string) {
+	_, _ = ctx.response.WriteString(s)
 }
 
-// Error writes JSON-RPC response with error.
-func (r *Request) Error(err *Error) {
-	if len(r.id) == 0 {
+// SetError writes JSON-RPC response with error.
+func (ctx *RequestCtx) SetError(err *Error) {
+	if len(ctx.id) == 0 {
 		return
 	}
 
-	r.response.Reset()
+	ctx.response.Reset()
 
 	if err.Data == nil {
-		writeresponseWithError(r.response, r.id, err.Code, err.Message, nil)
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, nil)
 		return
 	}
 
 	switch v := err.Data.(type) {
 	case *fastjson.Value:
-		buf := r.bytebufferpool.Get()
-		writeresponseWithError(r.response, r.id, err.Code, err.Message, v.MarshalTo(buf.B))
-		r.bytebufferpool.Put(buf)
+		buf := ctx.bytebufferpool.Get()
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, v.MarshalTo(buf.B))
+		ctx.bytebufferpool.Put(buf)
 	case []byte:
-		writeresponseWithError(r.response, r.id, err.Code, err.Message, v)
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, v)
 	default:
-		buf := r.bytebufferpool.Get()
+		buf := ctx.bytebufferpool.Get()
 		_ = json.NewEncoder(buf).Encode(err.Data)
-		writeresponseWithError(r.response, r.id, err.Code, err.Message, buf.B)
-		r.bytebufferpool.Put(buf)
+		writeresponseWithError(ctx.response, ctx.id, err.Code, err.Message, buf.B)
+		ctx.bytebufferpool.Put(buf)
 	}
 }
 
-// Result writes JSON-RPC response with result.
+// SetResult writes JSON-RPC response with result.
 //
 // result may be *fastjson.Value, []byte, or interface{} (slower).
-func (r *Request) Result(result interface{}) {
-	if len(r.id) == 0 {
+func (ctx *RequestCtx) SetResult(result interface{}) {
+	if len(ctx.id) == 0 {
 		return
 	}
 
-	r.response.Reset()
+	ctx.response.Reset()
 
 	switch v := result.(type) {
 	case *fastjson.Value:
-		buf := r.bytebufferpool.Get()
-		writeresponseWithResult(r.response, r.id, v.MarshalTo(buf.B))
-		r.bytebufferpool.Put(buf)
+		buf := ctx.bytebufferpool.Get()
+		writeresponseWithResult(ctx.response, ctx.id, v.MarshalTo(buf.B))
+		ctx.bytebufferpool.Put(buf)
 	case []byte:
-		writeresponseWithResult(r.response, r.id, v)
+		writeresponseWithResult(ctx.response, ctx.id, v)
 	default:
-		buf := r.bytebufferpool.Get()
+		buf := ctx.bytebufferpool.Get()
 		_ = json.NewEncoder(buf).Encode(result)
-		writeresponseWithResult(r.response, r.id, buf.B)
-		r.bytebufferpool.Put(buf)
+		writeresponseWithResult(ctx.response, ctx.id, buf.B)
+		ctx.bytebufferpool.Put(buf)
 	}
 }
