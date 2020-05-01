@@ -105,39 +105,32 @@ func (r *Repository) handleBatchRequest(batchCtx *Request, requests *fastjson.Va
 		return
 	}
 
-	var (
-		opened      bool
-		needComma   bool
-		hasResponse bool
-		n           int
-	)
+	_ = batchCtx.response.WriteByte('[')
+
+	var needComma bool
 
 	for _, request := range requestsArr {
 		ctx := r.contextPool.Get()
 		ctx.ctx = batchCtx.ctx
 		r.handleRequest(ctx, request)
 
-		hasResponse = ctx.response.Len() > 0
+		if ctx.response.Len() > 0 {
+			if needComma {
+				_ = batchCtx.response.WriteByte(',')
+				needComma = false
+			}
 
-		if !opened && hasResponse {
-			_ = batchCtx.response.WriteByte('[')
-			opened = true
-		}
-
-		if needComma && hasResponse {
-			_ = batchCtx.response.WriteByte(',')
-			needComma = false
-		}
-
-		n, _ = batchCtx.response.Write(ctx.response.B)
-		if n != 0 {
-			needComma = true
+			if n, _ := batchCtx.response.Write(ctx.response.B); n != 0 {
+				needComma = true
+			}
 		}
 
 		r.contextPool.Put(ctx)
 	}
 
-	if opened {
+	if batchCtx.response.Len() > 1 {
 		_ = batchCtx.response.WriteByte(']')
+	} else {
+		batchCtx.response.Reset()
 	}
 }
