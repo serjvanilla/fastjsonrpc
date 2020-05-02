@@ -1,4 +1,10 @@
-# fastjsonrpc [![GoDoc](https://godoc.org/github.com/serjvanilla/fastjsonrpc?status.svg)](http://godoc.org/github.com/serjvanilla/fastjsonrpc)
+# fastjsonrpc
+
+[![Build Status](https://travis-ci.org/serjvanilla/fastjsonrpc.svg?branch=master)](https://travis-ci.org/serjvanilla/fastjsonrpc)
+[![Coverage Status](https://coveralls.io/repos/serjvanilla/fastjsonrpc/badge.svg?branch=master&service=github)](https://coveralls.io/github/serjvanilla/fastjsonrpc?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/serjvanilla/fastjsonrpc)](https://goreportcard.com/report/github.com/serjvanilla/fastjsonrpc)
+[![GoDev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/serjvanilla/fastjsonrpc)
+
 Fast JSON-RPC 2.0 implementation for [fasthttp](https://github.com/valyala/fasthttp) server.
 
 ```
