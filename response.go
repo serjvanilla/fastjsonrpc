@@ -14,6 +14,8 @@ func (ctx *RequestCtx) writeString(s string) {
 }
 
 // SetError writes JSON-RPC response with error.
+//
+// It overwrites previous calls of SetResult and SetError.
 func (ctx *RequestCtx) SetError(err *Error) {
 	if len(ctx.id) == 0 {
 		return
@@ -42,6 +44,8 @@ func (ctx *RequestCtx) SetError(err *Error) {
 }
 
 // SetResult writes JSON-RPC response with result.
+//
+// It overwrites previous calls of SetResult and SetError.
 //
 // result may be *fastjson.Value, []byte, or interface{} (slower).
 func (ctx *RequestCtx) SetResult(result interface{}) {
