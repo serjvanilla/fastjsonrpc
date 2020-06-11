@@ -3,7 +3,6 @@ package fastjsonrpc
 import (
 	"context"
 	"encoding/json"
-	"time"
 
 	"github.com/valyala/fasthttp"
 
@@ -14,8 +13,6 @@ import (
 
 // RequestHandler must process incoming requests.
 type RequestHandler func(ctx *RequestCtx)
-
-var _ context.Context = &RequestCtx{}
 
 // RequestCtx contains incoming request and manages outgoing response.
 type RequestCtx struct {
@@ -70,30 +67,6 @@ func (ctx *RequestCtx) ParamsUnmarshal(v interface{}) *Error {
 	return nil
 }
 
-// Deadline returns underlying *fasthttp.RequestCtx Deadline.
-//
-// This method is present to make RequestCtx implement the context interface.
-func (ctx *RequestCtx) Deadline() (deadline time.Time, ok bool) {
-	return ctx.fasthttpCtx.Deadline()
-}
-
-// Done returns underlying *fasthttp.RequestCtx Done channel.
-//
-// This method is present to make RequestCtx implement the context interface.
-func (ctx *RequestCtx) Done() <-chan struct{} {
-	return ctx.fasthttpCtx.Done()
-}
-
-// Err returns underlying *fasthttp.RequestCtx Err.
-//
-// This method is present to make RequestCtx implement the context interface.
-func (ctx *RequestCtx) Err() error {
-	return ctx.fasthttpCtx.Err()
-}
-
-// Value returns underlying *fasthttp.RequestCtx Value.
-//
-// This method is present to make RequestCtx implement the context interface.
-func (ctx *RequestCtx) Value(key interface{}) interface{} {
-	return ctx.fasthttpCtx.Value(key)
+func (ctx *RequestCtx) Context() context.Context {
+	return ctx.fasthttpCtx
 }
